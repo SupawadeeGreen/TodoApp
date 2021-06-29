@@ -10,10 +10,13 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
+import FilterComponent from './src/filterComponent';
+
 const App = () => {
-  const [input, setInput] = useState('');
-  const [todoList, setTodoList] = useState([]);
-  const [filterSelected, setFilterSelector] = useState(0);
+  const [input, setInput] = useState<string>('');
+  const [todoList, setTodoList] = useState<Array>([]);
+  const [filterSelected, setFilterSelector] = useState<number>(0);
+
   const addInput = () => {
     if (input === '') {
       return;
@@ -47,30 +50,27 @@ const App = () => {
         <Button title="create" onPress={addInput} />
       </View>
       <View style={styles.filterContainer}>
-        <TouchableOpacity
+        <FilterComponent
           onPress={() => {
             setFilterSelector(0);
-          }}>
-          <Text style={{color: filterSelected == 0 ? 'blue' : 'black'}}>
-            All
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
+          }}
+          title="All"
+          color={filterSelected === 0 ? 'blue' : 'black'}
+        />
+        <FilterComponent
           onPress={() => {
             setFilterSelector(1);
-          }}>
-          <Text style={{color: filterSelected == 1 ? 'blue' : 'black'}}>
-            CheckList
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
+          }}
+          title="CheckList"
+          color={filterSelected === 1 ? 'blue' : 'black'}
+        />
+        <FilterComponent
           onPress={() => {
             setFilterSelector(2);
-          }}>
-          <Text style={{color: filterSelected == 2 ? 'blue' : 'black'}}>
-            UnCheckList
-          </Text>
-        </TouchableOpacity>
+          }}
+          title="UnCheckList"
+          color={filterSelected === 2 ? 'blue' : 'black'}
+        />
       </View>
       <FlatList
         data={todoList}
