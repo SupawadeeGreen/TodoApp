@@ -8,13 +8,20 @@ import {
   FlatList,
   Button,
   TouchableOpacity,
+  ListRenderItem,
 } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
 import FilterComponent from './src/filterComponent';
 
+type Todo = {
+  id: string;
+  name: string;
+  status: boolean;
+};
+
 const App = () => {
   const [input, setInput] = useState<string>('');
-  const [todoList, setTodoList] = useState<Array>([]);
+  const [todoList, setTodoList] = useState<Array<Todo>>([]);
   const [filterSelected, setFilterSelector] = useState<number>(0);
 
   const addInput = () => {
@@ -23,12 +30,16 @@ const App = () => {
     }
     setTodoList(currentItem => [
       ...currentItem,
-      {id: _.uniqueId(), name: input, status: false},
+      {
+        id: _.uniqueId(),
+        name: input,
+        status: false,
+      },
     ]);
     setInput('');
   };
 
-  const checkHandle = itemID => {
+  const checkHandle = (itemID: string) => {
     setTodoList(
       todoList.map(i => {
         if (itemID === i.id) {
@@ -38,6 +49,38 @@ const App = () => {
       }),
     );
   };
+
+  const renderTodoItem: ListRenderItem<Todo> = info => {
+    if (
+      filterSelected === 0 ||
+      (filterSelected === 1 && info.item.status) ||
+      (filterSelected === 2 && !info.item.status)
+    ) {
+      return (
+        <View style={styles.list}>
+          <TouchableOpacity onPress={() => checkHandle(info.item.id)}>
+            <View style={styles.list}>
+              <CheckBox
+                value={info.item.status}
+                onValueChange={() => checkHandle(info.item.id)}
+              />
+              <Text style={styles.itemText}>{info.item.name}</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              const newMapList = todoList.filter(i => i.id !== info.item.id);
+              setTodoList(newMapList);
+            }}
+            style={styles.deleteButton}>
+            <Text style={styles.createText}>Delete</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    return null;
+  };
+
   return (
     <View style={styles.screen}>
       <View style={styles.inputContainer}>
@@ -53,9 +96,7 @@ const App = () => {
       </View>
       <View style={styles.filterContainer}>
         <FilterComponent
-          onPress={() => {
-            setFilterSelector(0);
-          }}
+          onPress={() => setFilterSelector(0)}
           title="All"
           color={filterSelected === 0 ? '#2196F3' : '#888'}
         />
@@ -76,38 +117,8 @@ const App = () => {
       </View>
       <FlatList
         data={todoList}
-        keyExtractor={item => item.id}
-        renderItem={item => {
-          if (
-            filterSelected === 0 ||
-            (filterSelected === 1 && item.item.status) ||
-            (filterSelected === 2 && !item.item.status)
-          ) {
-            return (
-              <View style={styles.list}>
-                <TouchableOpacity onPress={() => checkHandle(item.item.id)}>
-                  <View style={styles.list}>
-                    <CheckBox
-                      value={item.item.status}
-                      onValueChange={() => checkHandle(item.item.id)}
-                    />
-                    <Text style={styles.itemText}>{item.item.name}</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    const newMapList = todoList.filter(
-                      i => i.id !== item.item.id,
-                    );
-                    setTodoList(newMapList);
-                  }}
-                  style={styles.deleteButton}>
-                  <Text style={styles.createText}>Delete</Text>
-                </TouchableOpacity>
-              </View>
-            );
-          }
-        }}
+        keyExtractor={(item: Todo) => item.id.toString()}
+        renderItem={renderTodoItem}
       />
       {todoList.length > 0 && (
         <Button

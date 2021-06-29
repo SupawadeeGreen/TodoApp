@@ -1,11 +1,8 @@
 {
-  "typescript.validate.enable": false,
+  "typescript.validate.enable": true,
   "javascript.validate.enable": false,
   "editor.formatOnSave": true,
   "javascript.preferences.quoteStyle": "single",
   "prettier.singleQuote": true,
-  "cSpell.words": [
-    "Satoshi",
-    "tixl"
-  ]
+  "cSpell.words": ["Satoshi", "tixl"]
 }
