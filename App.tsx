@@ -1,12 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
- */
 import _ from 'lodash';
 import React, {useState} from 'react';
 import {
@@ -19,52 +10,20 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
-
-// const todosData = [
-//   {
-//     id: 1,
-//     name: 'Walk the dog',
-//     status: false,
-//   },
-//   {
-//     id: 2,
-//     name: 'Mow the lawn',
-//     status: false,
-//   },
-//   {
-//     id: 3,
-//     name: 'Make your bed',
-//     status: false,
-//   },
-//   {
-//     id: 4,
-//     name: 'Cook dinner',
-//     status: false,
-//   },
-// ];
-
 const App = () => {
   const [input, setInput] = useState('');
   const [todoList, setTodoList] = useState([]);
-  const [checkedList, setCheckedList] = useState(['green']);
-  const [isSelected, setSelection] = useState(false);
-
-  React.useEffect(() => {
-    // _.forEach(checkedList, i => {
-    //   //   if (i.name === 'Aaa') {
-    //   //     i.stats = true;
-    //   //   }
-    // });
-  }, [todoList]);
-
+  const [filterSelected, setFilterSelector] = useState(0);
   const addInput = () => {
+    if (input === '') {
+      return;
+    }
     setTodoList(currentItem => [
       ...currentItem,
       {id: _.uniqueId(), name: input, status: false},
     ]);
     setInput('');
   };
-  console.log(todoList);
 
   const checkHandle = itemID => {
     setTodoList(
@@ -87,38 +46,75 @@ const App = () => {
         />
         <Button title="create" onPress={addInput} />
       </View>
+      <View style={styles.filterContainer}>
+        <TouchableOpacity
+          onPress={() => {
+            setFilterSelector(0);
+          }}>
+          <Text style={{color: filterSelected == 0 ? 'blue' : 'black'}}>
+            All
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            setFilterSelector(1);
+          }}>
+          <Text style={{color: filterSelected == 1 ? 'blue' : 'black'}}>
+            CheckList
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            setFilterSelector(2);
+          }}>
+          <Text style={{color: filterSelected == 2 ? 'blue' : 'black'}}>
+            UnCheckList
+          </Text>
+        </TouchableOpacity>
+      </View>
       <FlatList
         data={todoList}
         keyExtractor={item => item.id}
         renderItem={item => {
-          return (
-            <View style={styles.list}>
-              <TouchableOpacity onPress={() => checkHandle(item.item.id)}>
-                <View style={styles.list}>
-                  <CheckBox
-                    value={item.item.status}
-                    onValueChange={() => checkHandle(item.item.id)}
-                  />
-                  <Text>{item.item.name}</Text>
-                </View>
-              </TouchableOpacity>
-              <Button
-                title="delete"
-                onPress={() => {
-                  const newMapList = todoList.filter(
-                    i => i.id !== item.item.id,
-                  );
-                  setTodoList(newMapList);
-                }}
-              />
-            </View>
-          );
+          if (
+            filterSelected === 0 ||
+            (filterSelected === 1 && item.item.status) ||
+            (filterSelected === 2 && !item.item.status)
+          ) {
+            return (
+              <View style={styles.list}>
+                <TouchableOpacity onPress={() => checkHandle(item.item.id)}>
+                  <View style={styles.list}>
+                    <CheckBox
+                      value={item.item.status}
+                      onValueChange={() => checkHandle(item.item.id)}
+                    />
+                    <Text>{item.item.name}</Text>
+                  </View>
+                </TouchableOpacity>
+                <Button
+                  title="delete"
+                  onPress={() => {
+                    const newMapList = todoList.filter(
+                      i => i.id !== item.item.id,
+                    );
+                    setTodoList(newMapList);
+                  }}
+                />
+              </View>
+            );
+          }
+        }}
+      />
+      <Button
+        title="Delete All"
+        onPress={() => {
+          setTodoList([]);
         }}
       />
     </>
   );
 };
-
 const styles = StyleSheet.create({
   input: {
     height: 40,
@@ -133,6 +129,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  filterContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    margin: 20,
+  },
 });
-
 export default App;
